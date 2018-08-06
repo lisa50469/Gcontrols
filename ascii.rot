@@ -1,0 +1,8 @@
+TERM:10
+INIT:AZ0 EL0
+INIT:HOME
+RESP:p:Azimuth: %AZ%\nElevation: EL%EL%
+RESP:FORMAT:%.1f
+
+
+
