@@ -1,5 +1,7 @@
 /*
-  Gcontrol: Interface module for Gpredict by Alexandru Csete, OZ9AEC
+  Gpredict: Interface module for Gpredict by Alexandru Csete, OZ9AEC
+  Gcontrols: Add-on module by Lisa Nelson AK7WS to control Radio
+             and custom ASCII rotor.
 
   Copyright (C)  2018-2025  Lisa Nelson AK7WS.
 
