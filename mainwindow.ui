@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
+    <width>598</width>
     <height>622</height>
    </rect>
   </property>
@@ -226,7 +226,7 @@
      <set>Qt::ImhMultiLine</set>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -276,6 +276,65 @@
       </property>
       <property name="inputMethodHints">
        <set>Qt::ImhNone</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Radio NET</string>
+     </attribute>
+     <widget class="QCheckBox" name="checkBox_RadioNet">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>141</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Log Enabled</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="plainTextEdit_RadioNET">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>541</width>
+        <height>201</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>Rotor NET</string>
+     </attribute>
+     <widget class="QCheckBox" name="checkBox_RotorNet">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Log Enabled</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="plainTextEdit_RotorNET">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>541</width>
+        <height>201</height>
+       </rect>
       </property>
      </widget>
     </widget>
@@ -396,7 +455,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>672</width>
+     <width>598</width>
      <height>22</height>
     </rect>
    </property>

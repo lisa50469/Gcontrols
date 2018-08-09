@@ -49,6 +49,7 @@ public:
     void AddStructComTerms (QString str);
     void AddStructInits (QString str);
     void AddStructResps (QString str1,QString str2);
+    void Clear();
     void PrintInits();
     void PrintResps();
     void GetResponseCode(QString resp, QString *code);

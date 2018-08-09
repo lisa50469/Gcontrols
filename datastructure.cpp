@@ -32,6 +32,16 @@ DataStructure::DataStructure()
 }
 
 //-----------------------------------------------------------------------
+void DataStructure::Clear()
+{
+    if (Init != NULL)
+    {
+    Init = NULL;
+    Resp = NULL;
+    }
+}
+
+//-----------------------------------------------------------------------
 void DataStructure::AddStructComTerms(QString str)
 {
     ComTermChars = str;

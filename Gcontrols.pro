@@ -37,4 +37,4 @@ FORMS += \
 
 DISTFILES += \
     v71a.rad \
-    ../build-Gcontrols-Unnamed-Debug/ascii.rot
+    ascii.rot

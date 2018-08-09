@@ -44,7 +44,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.01";
+    QString version = "1.02";
 
 
 private slots:
