@@ -44,7 +44,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.02";
+    QString version = "1.03";
 
 
 private slots:
@@ -97,7 +97,7 @@ public:
     long DownlinkFreq;
     float Azumith;
     float Elevation;
-
+    bool DebugON;
 
 };
 

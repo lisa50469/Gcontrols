@@ -31,29 +31,30 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Gcontrol by Lisa Nelson Version: "+ version);
+    this->setWindowTitle("Gcontrol by Lisa Nelson AK7WS, Version: "+ version);
 
     QDirIterator Radioit(".", QStringList() << "*.rad", QDir::Files, QDirIterator::Subdirectories);
     while (Radioit.hasNext()) {
-        qDebug() << Radioit.next();
+        Radioit.next();
         ui->comboBox_Radio_File_Config->addItem(Radioit.fileName());
     }
 
     QDirIterator Rotorit(".", QStringList() << "*.rot", QDir::Files, QDirIterator::Subdirectories);
     while (Rotorit.hasNext()) {
-        qDebug() << Rotorit.next();
+        Rotorit.next();
         ui->comboBox_Rotor_File_Config->addItem(Rotorit.fileName());
     }
-
     RadioSerialPort = new QSerialPort(this);
     RotorSerialPort = new QSerialPort(this);
     RadioServer = new QTcpServer;
     RotorServer = new QTcpServer;
 
+    // Setup some defaults
     Azumith = 21;
     Elevation = 22;
     UplinkFreq = 123000000;
     DownlinkFreq = 456000000;
+    DebugON = false;
     MainWindow::DoRounding = false;
 
     timer = new QTimer;
@@ -62,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     RadioCode = new DataStructure;
     RotorCode = new DataStructure;
-
 }
 
 //-----------------------------------------------------------------------
@@ -88,7 +88,6 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
 {
     if (RadioSerialPort->isOpen())
         {
-        qDebug() << "Closing Radio Com port...";
         RadioSerialPort->close();
         ui->pushButton_open_radio_port->setText("Port Closed");
         ui->lineEdit_radio_port->setEnabled(0);
@@ -168,7 +167,7 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
     else    // Com port is not open.
         {
         RotorSerialPort->setPortName(ui->comboBox_rotor_port->currentText());
-        qDebug() << RotorSerialPort->portName();
+        if (DebugON) qDebug() << RotorSerialPort->portName();
         if (RotorSerialPort->open(QIODevice::ReadWrite))
             {
             RotorSerialPort->setBaudRate(QSerialPort::Baud9600);
@@ -207,7 +206,6 @@ void MainWindow::on_lineEdit_radio_port_returnPressed()
 {
     QString str = ui->lineEdit_radio_port->text();
     str += RadioCode->ComTermChars;
-    //qDebug() << "simplified:" << str;
     RadioSerialPort->write(str.toUtf8());
     MainWindow::QStringReveal(str);
     if(ui->checkBox_logging->checkState())
@@ -225,7 +223,6 @@ void MainWindow::on_lineEdit_rotor_port_returnPressed()
     MainWindow::QStringReveal(str);
     if(ui->checkBox_logging->checkState())
         ui->plainTextEditRotor->appendPlainText(">: "+str);
-    //qDebug() << "Wrote to rotor Com port:" << str;
 }
 
 //-----------------------------------------------------------------------
@@ -237,7 +234,6 @@ QString MainWindow::GetComData(QSerialPort *whatcom,QPlainTextEdit *where)
 
     if (str.length()>0)
         {
-        //qDebug() << "Com Port Incoming Data: " << str;
         MainWindow::QStringReveal(str);
         if(ui->checkBox_logging->checkState())
             where->appendPlainText("<: "+str);
@@ -250,15 +246,6 @@ void MainWindow::slotTimerAlarm()
 {
     MainWindow::GetComData(RadioSerialPort,ui->plainTextEditRadio);
     MainWindow::GetComData(RotorSerialPort,ui->plainTextEditRotor);
-
-    if (RotorSocket->ConnectedState == QAbstractSocket::UnconnectedState)
-        qDebug() << "Rotor socket is not connected";
-    //if (!RotorServer->isListening())
-     //   qDebug() << "Rotor server is not connected";
-    if (RadioSocket->ConnectedState == QAbstractSocket::UnconnectedState)
-        qDebug() << "Radio socket is not connected";
-   // if (!RadioServer->isListening())
-    //    qDebug() << "Radio server is not connected";
 
     char str[20];
     sprintf(str,"%ld",UplinkFreq);
@@ -276,8 +263,6 @@ void MainWindow::RadioNewNetConnection()
         qDebug() << "Socket failed to open.";
         return;
     }
-    qDebug() << "New Radio Net connection.";
-    //ui->plainTextEditRadioNet->setEnabled(1);
     connect(RadioSocket,SIGNAL(readyRead()),this,SLOT(RadioSocketReadyRead()));
 }
 
@@ -290,8 +275,6 @@ void MainWindow::RotorNewNetConnection()
         qDebug() << "Rotor Socket failed to open.";
         return;
     }
-    qDebug() << "New Rotor Net connection.";
-    //ui->plainTextEditRotorNet->setEnabled(1);
     connect(RotorSocket,SIGNAL(readyRead()),this,SLOT(RotorSocketReadyRead()));
 }
 
@@ -331,7 +314,6 @@ void MainWindow::RadioSocketReadyRead()
         MainWindow::QStringReveal(s);
         ui->plainTextEdit_RadioNET->appendPlainText(">: "+s);
     }
-    //qDebug() << "Radio Data In:" << data;
     int i;
     for (i=0;i<data.size();i++)
         str[i] = data[i];
@@ -339,7 +321,6 @@ void MainWindow::RadioSocketReadyRead()
 
     i = data[0];
     s = data;
-    //MainWindow::QStringReveal(s);
     switch (i) {
     case 'S':
         s = "RPRT 0\r";
@@ -350,20 +331,16 @@ void MainWindow::RadioSocketReadyRead()
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RadioNET->appendPlainText("<: "+s);
         }
-        //MainWindow::QStringReveal(s);
         break;
     case 'I':
         sscanf(str,"%c %ld",&c,&UplinkFreq);
-        //qDebug() << "New uplink freq: " << UplinkFreq;
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RadioNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RadioNET->appendPlainText("<: "+s);
         }
-        //MainWindow::QStringReveal(s);
         if(ui->checkBox_logging->checkState())
             ui->plainTextEditRadio->appendPlainText(">: "+s);
 
@@ -376,6 +353,7 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,str2,MainWindow::RoundTo5000(UplinkFreq));
         else
             sprintf(str,str2,UplinkFreq);
+
         RadioCode->GetResponseCode("SETUP",&s);
         s2 = str;
         s.replace( "%freq%", s2);
@@ -391,11 +369,9 @@ void MainWindow::RadioSocketReadyRead()
         RadioSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RadioNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RadioNET->appendPlainText("<: "+s);
         }
-        //MainWindow::QStringReveal(s);
         if(ui->checkBox_logging->checkState())
             ui->plainTextEditRadio->appendPlainText(">: "+s);
 
@@ -423,7 +399,6 @@ void MainWindow::RadioSocketReadyRead()
         RadioSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RadioNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RadioNET->appendPlainText("<: "+s);
         }
@@ -435,14 +410,12 @@ void MainWindow::RadioSocketReadyRead()
         RadioSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RadioNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RadioNET->appendPlainText("<: "+s);
         }
-        //MainWindow::QStringReveal(s);
         break;
     default:
-        qDebug() << "Default Radio In:" << data;
+        if (DebugON) qDebug() << "Default Radio In:" << data;
 
         break;
     }
@@ -478,7 +451,6 @@ void MainWindow::RotorSocketReadyRead()
         RotorSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RotorNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RotorNET->appendPlainText(">: "+s);
         }
@@ -489,14 +461,12 @@ void MainWindow::RotorSocketReadyRead()
         RotorSocket->write(s.toUtf8());
         if(ui->checkBox_logging->checkState() && ui->checkBox_RotorNet->checkState())
         {
-            //s = data;
             MainWindow::QStringReveal(s);
             ui->plainTextEdit_RotorNET->appendPlainText(">: "+s);
         }
         sprintf(str,"AZ%.2f EL%.2f",Azumith,Elevation);
         s = str;
         s += RotorCode->ComTermChars;
-qDebug() << "Sending this to com port:" << s.toUtf8();
         RotorSerialPort->write(s.toUtf8());
         MainWindow::QStringReveal(s);
         if(ui->checkBox_logging->checkState())
@@ -514,7 +484,6 @@ qDebug() << "Sending this to com port:" << s.toUtf8();
 void MainWindow::on_pushButton_read_radio_config_clicked()
 {
     QString cmd,s1,s2,line;
-    //QFile file("/home/lisa/src/Gcontrols/v71a.rad"); // XXX  Need to get the file name.
     QFile file(ui->comboBox_Radio_File_Config->currentText()); // XXX  Need to get the file name.
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
          return;
@@ -523,8 +492,6 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
      while  (!in.atEnd())
         {
             line = in.readLine();
-            //qDebug() << "New Line:" << line;
-
             cmd = line.split(":").at(0);
             if (cmd == "TERM")
                 {
@@ -536,13 +503,11 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
                 {
                 //MainWindow::DoRounding = true;
                 DoRounding = true;
-                qDebug() << "Rounding is turned on.";
                 }
             if (cmd == "DIGITS")
                 {
                 s1 = line.split(":").at(1);
                 NumDigits = s1.toInt();
-                qDebug() << "number of digits set to " << NumDigits;
                 }
             if (cmd == "INIT")
             {
@@ -563,11 +528,8 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
 //-----------------------------------------------------------------------
 void MainWindow::RadioInitialization()
 {
-    //qDebug() << "Initializing Radio com...";
     QString s;
     InitStruct *ptr = RadioCode->Init;  // Start at the beginning.
-    //qDebug() << "------- Sending Init data ----------";
-    //qDebug() << "Termination Characters: " << RadioCode->ComTermChars;
     QByteArray data;
     while (ptr != NULL)
     {
@@ -578,7 +540,6 @@ void MainWindow::RadioInitialization()
         if(ui->checkBox_logging->checkState())
             ui->plainTextEditRadio->appendPlainText(">: "+s);
         RadioSerialPort->write(data);
-        //qDebug() << "Sending data to com port:" << data;
         ptr = ptr->next;
     }
 }
@@ -586,11 +547,8 @@ void MainWindow::RadioInitialization()
 //-----------------------------------------------------------------------
 void MainWindow::RotorInitialization()
 {
-    qDebug() << "Initializing Roror com...";
     QString s;
     InitStruct *ptr = RotorCode->Init;  // Start at the beginning.
-    qDebug() << "------- Sending Init data ----------";
-    qDebug() << "Termination Characters: " << RotorCode->ComTermChars;
     QByteArray data;
     while (ptr != NULL)
     {
@@ -601,7 +559,6 @@ void MainWindow::RotorInitialization()
         if(ui->checkBox_logging->checkState())
             ui->plainTextEditRotor->appendPlainText(">: "+s);
         RotorSerialPort->write(data);
-        //qDebug() << "Sending data to com port:" << data;
         ptr = ptr->next;
     }
 }
@@ -613,19 +570,15 @@ void MainWindow::on_pushButton_read_rotor_config_clicked()
     QFile file(ui->comboBox_Rotor_File_Config->currentText()); // XXX  Need to get the file name.
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
          return;
-//qDebug() << "Reading rotor config file.";
 RotorCode->Clear();
      QTextStream in(&file);
      while  (!in.atEnd())
         {
             line = in.readLine();
-            qDebug() << "New Line:" << line;
-
             cmd = line.split(":").at(0);
             if (cmd == "TERM")
                 {
                 s1 = line.split(":").at(1);
-                qDebug() << s1;
                 QChar c = s1.toInt();
                 RotorCode->ComTermChars = c;
                 }
@@ -658,7 +611,4 @@ void MainWindow::InserVariablesInString(QString *s)
         s->replace( "%az%", QString::number(Azumith) );
     if (s->contains("%el%")>0)
         s->replace( "%el%", QString::number(Elevation) );
-    //qDebug() << "S made it here: " << *s;
 }
-
-
