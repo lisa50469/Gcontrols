@@ -102,11 +102,11 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
         if (RadioServer->isListening())
             {
             RadioServer->close();
-            ui->plainTextEditRadio->setEnabled(0);
+            //ui->plainTextEditRadio->setEnabled(0);
             }
         else
             {
-            ui->plainTextEditRadio->setEnabled(0);
+            //ui->plainTextEditRadio->setEnabled(0);
             }
 
         }
@@ -122,7 +122,7 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
             RadioSerialPort->setStopBits(QSerialPort::OneStop);
             ui->pushButton_open_radio_port->setText("Port Open");
             ui->lineEdit_radio_port->setEnabled(1);
-            ui->plainTextEditRadio->setEnabled(1);
+            //ui->plainTextEditRadio->setEnabled(1);
 
             RadioInitialization();  // Send the data from the config file that was read.
 
@@ -134,7 +134,7 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
             {
             qDebug() << "Radio Com Port FAILED!";
             ui->lineEdit_radio_port->setEnabled(0);
-            ui->plainTextEditRadio->setEnabled(0);
+            //ui->plainTextEditRadio->setEnabled(0);
             }
         }
 }
@@ -157,11 +157,11 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
         if (RotorServer->isListening())
             {
             RotorServer->close();
-            ui->plainTextEditRotor->setEnabled(0);
+            //ui->plainTextEditRotor->setEnabled(0);
             }
         else
             {
-            ui->plainTextEditRotor->setEnabled(0);
+            //ui->plainTextEditRotor->setEnabled(0);
             }
 
         }
@@ -177,7 +177,7 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
             RotorSerialPort->setStopBits(QSerialPort::OneStop);
             ui->pushButton_open_rotor_port->setText("Port Open");
             ui->lineEdit_rotor_port->setEnabled(1);
-            ui->plainTextEditRotor->setEnabled(1);
+            //ui->plainTextEditRotor->setEnabled(1);
 
             RotorInitialization();  // Send the data from the config file that was read.
 
@@ -190,7 +190,7 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
             {
             qDebug() << "Rotor Com Port FAILED!";
             ui->lineEdit_rotor_port->setEnabled(0);
-            ui->plainTextEditRotor->setEnabled(0);
+            //ui->plainTextEditRotor->setEnabled(0);
             }
         }
 }

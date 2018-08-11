@@ -25,7 +25,6 @@
 #include <QWidget>
 #include <QtSerialPort>
 #include <QTimer>
-//#include <QObject>
 #include <QtNetwork>
 #include<QPlainTextEdit>
 #include "datastructure.h"
@@ -44,7 +43,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.05";
+    QString version = "1.07";
 
 
 private slots:
