@@ -1,3 +1,4 @@
+# TERM defines the character sent to the RS232 Com port as termination.
 TERM:10
 INIT:AZ0 EL0
 INIT:HOME

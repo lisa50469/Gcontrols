@@ -1,6 +1,10 @@
+# TERM defines the character sent to the RS232 Com port as termination.
 TERM:13
+# All lines that start with INIT will be sent to the com port when the
+# port is opened.  In the order they appear here.
 INIT:VM 0,1
 INIT:VM 1,1
+# Some command here should not be read
 INIT:BC 0,0
 INIT:PC 0,0
 INIT:PC 1,2
@@ -8,7 +12,9 @@ INIT:ME 200,0145800000,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0
 INIT:ME 201,0155800000,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0
 INIT:MR 0,200
 INIT:MR 1,201
+# DIGITS defines how many characters to encode for sending to the radio.
 DIGITS:10
+# SETUP and SETDN define the command to set the Uplink/Downlink Freq.
 RESP:SETUP:ME 200,%freq%,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0
 RESP:SETUP:ME 202,%freq%,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0
 RESP:SETUP:ME 203,%freq%,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0

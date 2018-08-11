@@ -35,13 +35,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QDirIterator Radioit(".", QStringList() << "*.rad", QDir::Files, QDirIterator::Subdirectories);
     while (Radioit.hasNext()) {
-        qDebug() << Radioit.next();
+        //qDebug() << Radioit.next();
+        Radioit.next();
         ui->comboBox_Radio_File_Config->addItem(Radioit.fileName());
     }
 
     QDirIterator Rotorit(".", QStringList() << "*.rot", QDir::Files, QDirIterator::Subdirectories);
     while (Rotorit.hasNext()) {
-        qDebug() << Rotorit.next();
+        //qDebug() << Rotorit.next();
+        Rotorit.next();
         ui->comboBox_Rotor_File_Config->addItem(Rotorit.fileName());
     }
 
@@ -450,7 +452,7 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
      while  (!in.atEnd())
         {
             line = in.readLine();
-
+//qDebug() << "config ---> " << line;
             cmd = line.split(":").at(0);
             if (cmd == "TERM")
                 {
@@ -461,7 +463,7 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
             if (cmd == "ROUND")
                 {
                 DoRounding = true;
-                qDebug() << "Rounding is turned on.";
+                //qDebug() << "Rounding is turned on.";
                 }
             if (cmd == "DIGITS")
                 {
