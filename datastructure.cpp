@@ -26,20 +26,18 @@
 DataStructure::DataStructure()
 {
     ComTermChars = "";
-    //NetTermChars = "";
     Init = NULL;
     Resp = NULL;
 }
 
 //-----------------------------------------------------------------------
 void DataStructure::Clear()
-{
-    if (Init != NULL)
     {
+    ComTermChars = "";
     Init = NULL;
     Resp = NULL;
+
     }
-}
 
 //-----------------------------------------------------------------------
 void DataStructure::AddStructComTerms(QString str)
@@ -60,20 +58,14 @@ void DataStructure::AddStructInits(QString str)
     {
         InitStruct *ptr = Init;  // Start at the beginning.
         while (ptr->next != NULL)
+        {
             ptr = ptr->next;
+        }
         ptr->next = new InitStruct;
         ptr = ptr->next; // Now on the new box
         ptr->str = str;
         ptr->next = NULL;
     }
-}
-
-//-----------------------------------------------------------------------
-void DataStructure::PrintInits()
-{
-    InitStruct *ptr = Init;  // Start at the beginning.
-    while (ptr != NULL)
-        ptr = ptr->next;
 }
 
 //-----------------------------------------------------------------------
@@ -90,10 +82,11 @@ void DataStructure::AddStructResps(QString str1,QString str2)
     {
         RespStruct *ptr = Resp;  // Start at the beginning.
         while (ptr->next != NULL)
+        {
             ptr = ptr->next;
+        }
         ptr->next = new RespStruct;
         ptr = ptr->next; // Now on the new resp box
-        //ptr->str = str;
         ptr->instr = str1;
         ptr->outstr = str2;
         ptr->next = NULL;
@@ -111,7 +104,10 @@ void DataStructure::PrintResps()
 {
     RespStruct *ptr = Resp;  // Start at the beginning.
     while (ptr != NULL)
+    {
+        qDebug() << "--->" << ptr->instr << "   --->" << ptr->outstr;
         ptr = ptr->next;
+    }
 }
 
 //-----------------------------------------------------------------------
@@ -121,8 +117,15 @@ void DataStructure::GetResponseCode(QString resp, QString *code)
     RespStruct *ptr = Resp;  // Start at the beginning.
     while ((ptr != NULL) && (resp != ptr->instr))
     {
-        if (resp.indexOf(ptr->instr))
+        if (!resp.indexOf(ptr->instr))
+            {
+
+            }
+        else
+        {
             ptr = ptr->next;
+        }
     }
     *code = ptr->outstr;
 }
+

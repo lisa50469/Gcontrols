@@ -42,16 +42,15 @@ class DataStructure
 public:
     DataStructure();
     QString ComTermChars;
-    //QString NetTermChars;
     InitStruct *Init;
     RespStruct *Resp;
 
     void AddStructComTerms (QString str);
     void AddStructInits (QString str);
     void AddStructResps (QString str1,QString str2);
-    void Clear();
     void PrintInits();
     void PrintResps();
+    void Clear();
     void GetResponseCode(QString resp, QString *code);
     QString GetComTermChars();
     QString GetNetTermChars();
