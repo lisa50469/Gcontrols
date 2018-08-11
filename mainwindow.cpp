@@ -469,7 +469,7 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
                 {
                 s1 = line.split(":").at(1);
                 NumDigits = s1.toInt();
-                qDebug() << "number of digits set to " << NumDigits;
+                //qDebug() << "number of digits set to " << NumDigits;
                 }
             if (cmd == "INIT")
             {
@@ -483,6 +483,7 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
                 RadioCode->AddStructResps(s1,s2);
             }
         };
+     ui->pushButton_open_radio_port->setEnabled(1);
 }
 
 //-----------------------------------------------------------------------
@@ -555,6 +556,7 @@ void MainWindow::on_pushButton_read_rotor_config_clicked()
                 RotorCode->AddStructResps(s1,s2);
             }
         };
+    ui->pushButton_open_rotor_port->setEnabled(1);
 }
 
 //-----------------------------------------------------------------------

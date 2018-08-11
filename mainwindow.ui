@@ -59,6 +59,9 @@
      </item>
      <item row="1" column="1">
       <widget class="QPushButton" name="pushButton_open_radio_port">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -85,6 +88,9 @@
      </item>
      <item row="2" column="1">
       <widget class="QPushButton" name="pushButton_open_rotor_port">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -122,6 +128,9 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Send commands to the Rotor Com port</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -131,6 +140,9 @@
       <widget class="QLineEdit" name="lineEdit_radio_port">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Send commands to the Radio COM port</string>
        </property>
        <property name="text">
         <string/>
@@ -192,7 +204,7 @@
      <set>Qt::ImhMultiLine</set>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
