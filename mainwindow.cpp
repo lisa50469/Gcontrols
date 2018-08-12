@@ -306,45 +306,43 @@ long MainWindow::RoundTo5000(long num)
 //-----------------------------------------------------------------------
 void MainWindow::RadioSocketReadyRead()
 {
-    QString s,s2;
+    QString s;
+    char CommandString[50];
     char str[50];
-    char str2[50];
+    //char str2[50];
+    char freqformat[20];
     char c;
-    QByteArray data = RadioSocket->readAll();
     int i;
-    for (i=0;i<data.size();i++)
-        str[i] = data[i];
-    str[i] = '\0'; // Terminate the string
 
-    i = data[0];
+    // Get the new data into standard string format.
+    QByteArray data = RadioSocket->readAll();
+    for (i=0;i<data.size();i++) CommandString[i] = data[i];
+        CommandString[i] = '\0'; // Terminate the string
+
+    RadioCode->GetResponseCode("FREQFORMAT",&s);
+    for (i=0;i<s.toUtf8().size();i++)
+        freqformat[i] = s.toUtf8()[i];
+    freqformat[i] = '\0'; // Terminate the string
+
+    i = data[0];    // First character of command.
     s = data;
-    MainWindow::QStringReveal(s);
     switch (i) {
     case 'S':
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
         break;
     case 'I':
-        sscanf(str,"%c %ld",&c,&UplinkFreq);
+        sscanf(CommandString,"%c %ld",&c,&UplinkFreq);
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRadio->appendPlainText(">: "+s);
 
-        RadioCode->GetResponseCode("FREQFORMAT",&s);
-        for (i=0;i<s.toUtf8().size();i++)
-            str2[i] = s.toUtf8()[i];
-        str2[i] = '\0'; // Terminate the string
-        sprintf(str,str2,MainWindow::RoundTo5000(UplinkFreq));
         if (MainWindow::DoRounding)
-            sprintf(str,str2,MainWindow::RoundTo5000(UplinkFreq));
+            sprintf(str,freqformat,MainWindow::RoundTo5000(UplinkFreq));
         else
-            sprintf(str,str2,UplinkFreq);
+            sprintf(str,freqformat,UplinkFreq);
+
         RadioCode->GetResponseCode("SETUP",&s);
-        s2 = str;
-        s.replace( "%freq%", s2);
+        s.replace( "%freq%", str);
         s += RadioCode->ComTermChars;
         RadioSerialPort->write(s.toUtf8());
         MainWindow::QStringReveal(s);
@@ -352,24 +350,17 @@ void MainWindow::RadioSocketReadyRead()
             ui->plainTextEditRadio->appendPlainText(">: "+s);
         break;
     case 'F':
-        sscanf(str,"%c %ld",&c,&DownlinkFreq);
+        sscanf(CommandString,"%c %ld",&c,&DownlinkFreq);
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRadio->appendPlainText(">: "+s);
 
-        RadioCode->GetResponseCode("FREQFORMAT",&s);
-        for (i=0;i<s.toUtf8().size();i++)
-            str2[i] = s.toUtf8()[i];
-        str2[i] = '\0'; // Terminate the string
         if (MainWindow::DoRounding)
-            sprintf(str,str2,MainWindow::RoundTo5000(DownlinkFreq));
+            sprintf(str,freqformat,MainWindow::RoundTo5000(DownlinkFreq));
         else
-            sprintf(str,str2,DownlinkFreq);
+            sprintf(str,freqformat,DownlinkFreq);
+
         RadioCode->GetResponseCode("SETDN",&s);
-        s2 = str;
-        s.replace( "%freq%", s2);
+        s.replace( "%freq%", str);
         s += RadioCode->ComTermChars;
         RadioSerialPort->write(s.toUtf8());
         MainWindow::QStringReveal(s);
@@ -390,8 +381,7 @@ void MainWindow::RadioSocketReadyRead()
         MainWindow::QStringReveal(s);
         break;
     default:
-        qDebug() << "Default Radio In:" << data;
-
+        qDebug() << "Un-Processed Radio Command:" << data;
         break;
     }
 }

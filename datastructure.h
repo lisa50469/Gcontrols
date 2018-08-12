@@ -52,6 +52,8 @@ public:
     void PrintResps();
     void Clear();
     void GetResponseCode(QString resp, QString *code);
+    void SendRespToCOM();
+
     QString GetComTermChars();
     QString GetNetTermChars();
 };

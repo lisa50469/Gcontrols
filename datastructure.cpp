@@ -129,3 +129,14 @@ void DataStructure::GetResponseCode(QString resp, QString *code)
     *code = ptr->outstr;
 }
 
+//-----------------------------------------------------------------------
+void DataStructure::SendRespToCOM()
+{
+    RespStruct *ptr = Resp;  // Start at the beginning.
+    while (ptr != NULL)
+    {
+        qDebug() << "--->" << ptr->instr << "   --->" << ptr->outstr;
+        ptr = ptr->next;
+    }
+}
+
