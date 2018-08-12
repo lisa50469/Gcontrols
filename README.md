@@ -1,5 +1,7 @@
-First time using git.
+
 I use this program to run my v71a and custom built rotor with Gpredict.
+Built with QT Creator on 18.04 Ubuntu Linux.
+*.rad and *.rot config files for defining how it talks to the rotor and radio.
 
 ToDo List:
 
