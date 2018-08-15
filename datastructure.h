@@ -22,13 +22,6 @@
 #define DATASTRUCTURE_H
 #include <QString>
 
-struct InitStruct
-{
-    InitStruct() {}
-    QString str;
-    InitStruct *next;
-};
-
 struct RespStruct
 {
     RespStruct() {}
@@ -42,17 +35,15 @@ class DataStructure
 public:
     DataStructure();
     QString ComTermChars;
-    InitStruct *Init;
     RespStruct *Resp;
 
     void AddStructComTerms (QString str);
-    void AddStructInits (QString str);
     void AddStructResps (QString str1,QString str2);
-    void PrintInits();
     void PrintResps();
     void Clear();
     void GetResponseCode(QString resp, QString *code);
-    void SendRespToCOM();
+    RespStruct *GetNextRespCode(RespStruct *p, QString *resp, QString *code);
+    void InserVariablesInString(QString *s);
 
     QString GetComTermChars();
     QString GetNetTermChars();

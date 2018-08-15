@@ -188,7 +188,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabs">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -206,7 +206,7 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_Radio_COM">
      <attribute name="title">
       <string>Radio COM</string>
      </attribute>
@@ -230,7 +230,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="tab_Rotor_COM">
      <attribute name="title">
       <string>Rotor COM</string>
      </attribute>

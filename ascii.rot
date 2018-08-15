@@ -3,7 +3,5 @@ TERM:10
 INIT:AZ0 EL0
 INIT:HOME
 RESP:p:Azimuth: %AZ%\nElevation: EL%EL%
-RESP:FORMAT:%.1f
-
-
+RESP:FORMAT:AZ%.2f EL%.2f
 

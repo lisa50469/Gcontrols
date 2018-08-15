@@ -29,7 +29,6 @@
 #include<QPlainTextEdit>
 #include "datastructure.h"
 
-
 namespace Ui {
 class MainWindow;
 }
@@ -43,8 +42,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.08";
-
+    QString version = "1.11";
 
 private slots:
     void on_pushButton_scan_com_ports_clicked();
@@ -61,13 +59,17 @@ private slots:
 
     void on_pushButton_read_radio_config_clicked();
     void on_pushButton_read_rotor_config_clicked();
-    void RadioInitialization();
-    void RotorInitialization();
+    void Initialization(DataStructure * , QSerialPort *, QString *, QPlainTextEdit *);
     void InserVariablesInString(QString *s);
-    //void ReadVariables(QString *s);
-    long RoundTo5000(long num);
+    long RoundTo5k(long num);
 
-   public slots:
+    //void on_pushButton_clicked();
+
+public slots:
+    //QString GetUpLinkFreq();
+    //long GetDownLinkFreq();
+   // float GetAzumith();
+   // float GetElevation();
 
 private:
     Ui::MainWindow *ui;
@@ -86,22 +88,15 @@ private:
 
     DataStructure *RadioCode;
     DataStructure *RotorCode;
+
     bool DoRounding;
-    int NumDigits;
-
-public:
-
-    // Global variables
     long UplinkFreq;
     long DownlinkFreq;
     float Azumith;
     float Elevation;
 
+public:
 
 };
 
-
-
-//  ME 200,0145880000,0,0,0,1,0,0,00,08,000,00600000,0,0000000000,0,0
-//  MR 0,012
 #endif // MAINWINDOW_H

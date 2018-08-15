@@ -26,7 +26,6 @@
 DataStructure::DataStructure()
 {
     ComTermChars = "";
-    Init = NULL;
     Resp = NULL;
 }
 
@@ -34,7 +33,6 @@ DataStructure::DataStructure()
 void DataStructure::Clear()
     {
     ComTermChars = "";
-    Init = NULL;
     Resp = NULL;
 
     }
@@ -43,29 +41,6 @@ void DataStructure::Clear()
 void DataStructure::AddStructComTerms(QString str)
 {
     ComTermChars = str;
-}
-
-//-----------------------------------------------------------------------
-void DataStructure::AddStructInits(QString str)
-{
-    if (Init == NULL)
-    {
-        Init = new InitStruct;
-        Init->str = str;
-        Init->next = NULL;
-    }
-    else
-    {
-        InitStruct *ptr = Init;  // Start at the beginning.
-        while (ptr->next != NULL)
-        {
-            ptr = ptr->next;
-        }
-        ptr->next = new InitStruct;
-        ptr = ptr->next; // Now on the new box
-        ptr->str = str;
-        ptr->next = NULL;
-    }
 }
 
 //-----------------------------------------------------------------------
@@ -130,13 +105,46 @@ void DataStructure::GetResponseCode(QString resp, QString *code)
 }
 
 //-----------------------------------------------------------------------
-void DataStructure::SendRespToCOM()
+RespStruct *DataStructure::GetNextRespCode(RespStruct *p,QString *resp, QString *code)
 {
-    RespStruct *ptr = Resp;  // Start at the beginning.
-    while (ptr != NULL)
+    RespStruct *ptr = p;  // Start at the passed pointer.
+    if (ptr == NULL)
     {
-        qDebug() << "--->" << ptr->instr << "   --->" << ptr->outstr;
-        ptr = ptr->next;
+        *code = "NULL";
+        return NULL; // Don't deal with NULL pointer!
     }
+    else
+    {
+        while ((ptr != NULL) && (*resp != ptr->instr))
+            ptr = ptr->next; // Search through list.
+
+        if (ptr == NULL)
+            {
+                *code = "NULL";
+                return NULL;  // Didn't find any more...
+            }
+
+        if (ptr->instr == *resp)
+            {   // Got a match!
+                *code = ptr->outstr;
+                return ptr->next;   // Let calling function know where we left off.
+            }
+    }
+return NULL;    // Make compiler happy with a return.
 }
+
+//-----------------------------------------------------------------------
+/*void DataStructure::xInserVariablesInString(QString *s)
+{
+
+    if (s->contains("%uplink%")>0)
+       s->replace( "%uplink%", QString::number(UplinkFreq) );
+    if (s->contains("%downlink%")>0)
+        s->replace( "%downlink%", QString::number(DownlinkFreq) );
+
+    if (s->contains("%az%")>0)
+        s->replace( "%az%", QString::number(Azumith) );
+    if (s->contains("%el%")>0)
+        s->replace( "%el%", QString::number(Elevation) );
+}*/
 
