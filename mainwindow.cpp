@@ -56,8 +56,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     Azumith = 21;
     Elevation = 22;
-    UplinkFreq = 123000000;
-    DownlinkFreq = 456000000;
+    UplinkFreq = 145800000;
+    DownlinkFreq = 446900000;
+    //LastUplinkFreq = 0;
+    //LastDownlinkFreq = 0;
     MainWindow::DoRounding = false;
 
     timer = new QTimer;
@@ -288,6 +290,7 @@ long MainWindow::RoundTo5k(long num)
 void MainWindow::RadioSocketReadyRead()
 {
     QString s;
+    QString NewFreq;
     char CommandString[50];
     char str[50];
     char freqformat[20];
@@ -306,6 +309,7 @@ void MainWindow::RadioSocketReadyRead()
 
     i = data[0];    // First character of command.
     s = data;
+//qDebug() << "To Radio:"<<s;
     switch (i) {
     case 'S':
         s = "RPRT 0\r";
@@ -320,14 +324,20 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,MainWindow::RoundTo5k(UplinkFreq));
         else
             sprintf(str,freqformat,UplinkFreq);
+        NewFreq = str;
 
-        RadioCode->GetResponseCode("SETUP",&s);
-        s.replace( "%freq%", str);
-        s += RadioCode->ComTermChars;
-        RadioSerialPort->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRadio->appendPlainText(">: "+s);
+//qDebug() << "Uplink freq:" << NewFreq << "  Last Uplink freq:" << LastUplinkFreq;
+        if (NewFreq != LastUplinkFreq) // new freq
+            {
+            LastUplinkFreq = str;
+            RadioCode->GetResponseCode("SETUP",&s);
+            s.replace( "%freq%", str);
+            s += RadioCode->ComTermChars;
+            RadioSerialPort->write(s.toUtf8());
+            MainWindow::QStringReveal(s);
+            if(ui->checkBox_logging->checkState())
+                ui->plainTextEditRadio->appendPlainText(">: "+s);
+            }
         break;
     case 'F':
         sscanf(CommandString,"%c %ld",&c,&DownlinkFreq);
@@ -338,14 +348,21 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,MainWindow::RoundTo5k(DownlinkFreq));
         else
             sprintf(str,freqformat,DownlinkFreq);
+        NewFreq = str;
 
-        RadioCode->GetResponseCode("SETDN",&s);
-        s.replace( "%freq%", str);
-        s += RadioCode->ComTermChars;
-        RadioSerialPort->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRadio->appendPlainText(">: "+s);
+//qDebug() << "Downlink freq:" << NewFreq << "  Last Downlink freq:" << LastDownlinkFreq;
+        if (NewFreq != LastDownlinkFreq) // new freq
+            {
+            LastDownlinkFreq = str;
+            RadioCode->GetResponseCode("SETDN",&s);
+            s.replace( "%freq%", str);
+            s += RadioCode->ComTermChars;
+            RadioSerialPort->write(s.toUtf8());
+            MainWindow::QStringReveal(s);
+            if(ui->checkBox_logging->checkState())
+                ui->plainTextEditRadio->appendPlainText(">: "+s);
+
+            }
         break;
     case 'f':
         sprintf(str,"%ld",DownlinkFreq);

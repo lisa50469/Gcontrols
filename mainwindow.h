@@ -92,6 +92,8 @@ private:
     bool DoRounding;
     long UplinkFreq;
     long DownlinkFreq;
+    QString LastUplinkFreq;
+    QString LastDownlinkFreq;
     float Azumith;
     float Elevation;
 
