@@ -42,7 +42,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.11";
+    QString version = "1.12";
 
 private slots:
     void on_pushButton_scan_com_ports_clicked();
@@ -63,13 +63,7 @@ private slots:
     void InserVariablesInString(QString *s);
     long RoundTo5k(long num);
 
-    //void on_pushButton_clicked();
-
 public slots:
-    //QString GetUpLinkFreq();
-    //long GetDownLinkFreq();
-   // float GetAzumith();
-   // float GetElevation();
 
 private:
     Ui::MainWindow *ui;

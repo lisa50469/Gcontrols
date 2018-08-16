@@ -62,6 +62,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //LastDownlinkFreq = 0;
     MainWindow::DoRounding = false;
 
+    // Now enable the NET server for the Radio
+    RadioServer->listen(QHostAddress::Any,ui->lineEditRadioNetPort->text().toInt());
+    connect(RadioServer,SIGNAL(newConnection()),this,SLOT(RadioNewNetConnection()));
+    // Now enable the NET server for the Rotor
+    RotorServer->listen(QHostAddress::Any,ui->lineEditRotorNetPort->text().toInt());
+    connect(RotorServer,SIGNAL(newConnection()),this,SLOT(RotorNewNetConnection()));
+
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), this, SLOT(slotTimerAlarm()));
     timer->start(500);
@@ -94,13 +101,6 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
         RadioSerialPort->close();
         ui->pushButton_open_radio_port->setText("Port Closed");
         ui->lineEdit_radio_port->setEnabled(0);
-
-        if ((RadioSocket->ConnectedState == QAbstractSocket::UnconnectedState) &&
-                (RadioSocket->isOpen())) // Close the network operations when com is closed
-            RadioSocket->close();
-
-        if (RadioServer->isListening())
-            RadioServer->close();
         }
     else
         {
@@ -118,10 +118,6 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
             //RadioInitialization();  // Send the data from the config file that was read.
             QString s = "INIT";
             Initialization(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
-
-            // Now enable the NET server for the Radio
-            RadioServer->listen(QHostAddress::Any,ui->lineEditRadioNetPort->text().toInt());
-            connect(RadioServer,SIGNAL(newConnection()),this,SLOT(RadioNewNetConnection()));
             }
         else
             {
@@ -143,13 +139,6 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
         RotorSerialPort->close();
         ui->pushButton_open_rotor_port->setText("Port Closed");
         ui->lineEdit_rotor_port->setEnabled(0);
-
-        if ((RotorSocket->ConnectedState == QAbstractSocket::UnconnectedState) &&
-                (RotorSocket->isOpen())) // Close the network operations when com is closed
-            RotorSocket->close();
-
-        if (RotorServer->isListening())
-            RotorServer->close();
         }
     else    // Com port is not open.
         {
@@ -166,11 +155,6 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
                 //RotorInitialization();  // Send the data from the config file that was read.
                 QString s = "INIT";
                 Initialization(RotorCode, RotorSerialPort, &s, ui->plainTextEditRotor);
-
-                // Now enable the NET server for the Rotor
-                //RotorServer = new QTcpServer;
-                RotorServer->listen(QHostAddress::Any,ui->lineEditRotorNetPort->text().toInt());
-                connect(RotorServer,SIGNAL(newConnection()),this,SLOT(RotorNewNetConnection()));
                 }
             else
                 {
@@ -209,6 +193,12 @@ void MainWindow::on_lineEdit_rotor_port_returnPressed()
     MainWindow::QStringReveal(str);
     if(ui->checkBox_logging->checkState())
         ui->plainTextEditRotor->appendPlainText(">: "+str);
+}
+
+//-----------------------------------------------------------------------
+void QSerialPort::errorOccurred(QSerialPort::SerialPortError error)
+{
+qDebug() << "Got a serial port ERROR!! " << error;
 }
 
 //-----------------------------------------------------------------------
@@ -309,7 +299,7 @@ void MainWindow::RadioSocketReadyRead()
 
     i = data[0];    // First character of command.
     s = data;
-//qDebug() << "To Radio:"<<s;
+
     switch (i) {
     case 'S':
         s = "RPRT 0\r";
@@ -326,8 +316,7 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,UplinkFreq);
         NewFreq = str;
 
-//qDebug() << "Uplink freq:" << NewFreq << "  Last Uplink freq:" << LastUplinkFreq;
-        if (NewFreq != LastUplinkFreq) // new freq
+        if (NewFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
             {
             LastUplinkFreq = str;
             RadioCode->GetResponseCode("SETUP",&s);
@@ -350,8 +339,7 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,DownlinkFreq);
         NewFreq = str;
 
-//qDebug() << "Downlink freq:" << NewFreq << "  Last Downlink freq:" << LastDownlinkFreq;
-        if (NewFreq != LastDownlinkFreq) // new freq
+        if (NewFreq != LastDownlinkFreq && RadioSerialPort->isWritable()) // new freq
             {
             LastDownlinkFreq = str;
             RadioCode->GetResponseCode("SETDN",&s);
@@ -397,19 +385,16 @@ void MainWindow::RotorSocketReadyRead()
 
     QByteArray data = RotorSocket->readAll();
     int i;
-    //MainWindow::QStringReveal(s);
 
     RotorCode->GetResponseCode("FORMAT",&s);
     for (i=0;i<s.toUtf8().size();i++)
         format[i] = s.toUtf8()[i];
     format[i] = '\0'; // Terminate the string
-//qDebug() << "Rotor format is:"<<format;
 
 i = data[0];
 s = data;
     switch (i) {
     case 'p':
-//        qDebug()<<"Got p:";
         sprintf(az,"%.2f",Azumith);
         sprintf(el,"%.2f",Elevation);
         s = "%AZ%\n%EL%\n";
@@ -418,25 +403,26 @@ s = data;
         RotorSocket->write(s.toUtf8());
         break;
     case 'P':
-//        qDebug()<<"Got P:";
         sscanf(data,"%c %f %f",&c,&Azumith,&Elevation);
         RotorSocket->write("RPRT 0\n");
         sprintf(str,format,Azumith,Elevation);
         s = str;
-//qDebug()<<"first got this:"<< s;
         s += RotorCode->ComTermChars;
-//qDebug() << "Sending this to com port:" << s.toUtf8();
-        RotorSerialPort->write(s.toUtf8());
-        MainWindow::QStringReveal(s);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRotor->appendPlainText(">: "+s);
+        if(RotorSerialPort->isWritable())
+        {
+            RotorSerialPort->write(s.toUtf8());
+            MainWindow::QStringReveal(s);
+            if(ui->checkBox_logging->checkState())
+                ui->plainTextEditRotor->appendPlainText(">: "+s);
+        }
         break;
     case 'S':
-//        qDebug()<<"Got P:";
         RotorSocket->write("RPRT 0\n");
         break;
     default:
         qDebug() << "Un-Processed Rotor Command:" << data;
+        s = "RPRT 0\r";
+        RotorSocket->write(s.toUtf8());
         break;
     }
 }
