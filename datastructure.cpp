@@ -133,18 +133,4 @@ RespStruct *DataStructure::GetNextRespCode(RespStruct *p,QString *resp, QString 
 return NULL;    // Make compiler happy with a return.
 }
 
-//-----------------------------------------------------------------------
-/*void DataStructure::xInserVariablesInString(QString *s)
-{
-
-    if (s->contains("%uplink%")>0)
-       s->replace( "%uplink%", QString::number(UplinkFreq) );
-    if (s->contains("%downlink%")>0)
-        s->replace( "%downlink%", QString::number(DownlinkFreq) );
-
-    if (s->contains("%az%")>0)
-        s->replace( "%az%", QString::number(Azumith) );
-    if (s->contains("%el%")>0)
-        s->replace( "%el%", QString::number(Elevation) );
-}*/
 

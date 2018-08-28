@@ -37,4 +37,5 @@ FORMS += \
 
 DISTFILES += \
     v71a.rad \
-    ascii.rot
+    ascii.rot \
+    ts2000x.rad

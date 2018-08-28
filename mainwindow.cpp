@@ -95,6 +95,8 @@ void MainWindow::on_pushButton_scan_com_ports_clicked()
 //-----------------------------------------------------------------------
 void MainWindow::on_pushButton_open_radio_port_clicked()
 {
+    QString s;
+
     if (RadioSerialPort->isOpen())
         {
         qDebug() << "Closing Radio Com port...";
@@ -108,7 +110,10 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
         RadioSerialPort->setPortName(ui->comboBox_radio_port->currentText());
         if (RadioSerialPort->open(QIODevice::ReadWrite))
             {
-            RadioSerialPort->setBaudRate(QSerialPort::Baud9600);
+            RadioCode->GetResponseCode("BAUD",&s);
+//qDebug() << "Baud rate is:" << s;
+//RadioSerialPort->setBaudRate(QSerialPort::Baud9600);
+            RadioSerialPort->setBaudRate(s.toInt());
             RadioSerialPort->setDataBits(QSerialPort::Data8);
             RadioSerialPort->setFlowControl(QSerialPort::NoFlowControl);
             RadioSerialPort->setStopBits(QSerialPort::OneStop);
@@ -277,10 +282,28 @@ long MainWindow::RoundTo5k(long num)
 }
 
 //-----------------------------------------------------------------------
+QString MainWindow::FreqBand(QString freq)
+{
+    int i = freq.toInt();
+    if ((i > 420000000) && (i < 450000000)) return "70cm";
+    if ((i > 222000000) && (i < 225000000)) return "1.25m";
+    if ((i > 144000000) && (i < 148000000)) return "2m";
+    if ((i > 50000000) && (i < 54000000)) return "6m";
+    if ((i > 28000000) && (i < 29700000)) return "10m";
+    if ((i > 14000000) && (i < 14350000)) return "20m";
+    if ((i > 7000000) && (i < 7300000)) return "40m";
+    if ((i > 3500000) && (i < 4000000)) return "80m";
+    if ((i > 1800000) && (i < 2000000)) return "160m";
+//qDebug() << "Frequency sent is: " << freq;
+return "-";
+}
+
+//-----------------------------------------------------------------------
 void MainWindow::RadioSocketReadyRead()
 {
     QString s;
-    QString NewFreq;
+    QString NewUPFreq;
+    QString NewDNFreq;
     char CommandString[50];
     char str[50];
     char freqformat[20];
@@ -314,10 +337,23 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,MainWindow::RoundTo5k(UplinkFreq));
         else
             sprintf(str,freqformat,UplinkFreq);
-        NewFreq = str;
-
-        if (NewFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
+        NewUPFreq = str;
+        if (NewUPFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
             {
+//qDebug() << "Got new freq: " << FreqBand(NewUPFreq);
+//qDebug() << "Got old freq: " << FreqBand(LastUplinkFreq);
+if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
+{
+//    qDebug() << "GOTTA CHANGE BANDS!";
+    RadioCode->GetResponseCode("BANDUP",&NewUPFreq);
+
+    //NewUPFreq = "BU;";
+    RadioSerialPort->write(NewUPFreq.toUtf8());
+    MainWindow::QStringReveal(NewUPFreq);
+    if(ui->checkBox_logging->checkState())
+        ui->plainTextEditRadio->appendPlainText(">: "+NewUPFreq);
+
+}
             LastUplinkFreq = str;
             RadioCode->GetResponseCode("SETUP",&s);
             s.replace( "%freq%", str);
@@ -337,9 +373,8 @@ void MainWindow::RadioSocketReadyRead()
             sprintf(str,freqformat,MainWindow::RoundTo5k(DownlinkFreq));
         else
             sprintf(str,freqformat,DownlinkFreq);
-        NewFreq = str;
-
-        if (NewFreq != LastDownlinkFreq && RadioSerialPort->isWritable()) // new freq
+        NewDNFreq = str;
+        if (NewDNFreq != LastDownlinkFreq && RadioSerialPort->isWritable()) // new freq
             {
             LastDownlinkFreq = str;
             RadioCode->GetResponseCode("SETDN",&s);
@@ -349,7 +384,6 @@ void MainWindow::RadioSocketReadyRead()
             MainWindow::QStringReveal(s);
             if(ui->checkBox_logging->checkState())
                 ui->plainTextEditRadio->appendPlainText(">: "+s);
-
             }
         break;
     case 'f':
@@ -370,7 +404,10 @@ void MainWindow::RadioSocketReadyRead()
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
         break;
-    }
+    } // Done with the case statement.
+
+    // OK, outside the case statement change freq's if needed.
+
 }
 
 //-----------------------------------------------------------------------
@@ -460,6 +497,24 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
                 RadioCode->AddStructResps(s1,s2);
             }
             if (cmd == "INIT")
+            {
+                s1 = line.split(":").at(0);
+                s2 = line.split(":").at(1);
+                RadioCode->AddStructResps(s1,s2);
+            }
+            if (cmd == "BANDDN")
+            {
+                s1 = line.split(":").at(0);
+                s2 = line.split(":").at(1);
+                RadioCode->AddStructResps(s1,s2);
+            }
+            if (cmd == "BANDUP")
+            {
+                s1 = line.split(":").at(0);
+                s2 = line.split(":").at(1);
+                RadioCode->AddStructResps(s1,s2);
+            }
+            if (cmd == "BAUD")
             {
                 s1 = line.split(":").at(0);
                 s2 = line.split(":").at(1);

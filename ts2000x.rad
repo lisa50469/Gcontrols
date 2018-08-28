@@ -1,0 +1,36 @@
+# TERM defines the character sent to the RS232 Com port as termination.
+TERM:13
+
+# Set the baud rate, other settings are fixed at N81
+BAUD:9600
+
+# All lines that start with INIT will be sent to the com port when the
+# port is opened.  In the order they appear here.
+# Turn the sub on.
+INIT:SB1;
+INIT:DC00;
+INIT:FR0;
+INIT:MD4;
+INIT:DC11;
+INIT:FR0;
+INIT:MD4;
+INIT:RG255;
+INIT:RG;
+
+# Enter Sat mode
+INIT:SA1010000;
+
+# Specify the frequency format
+RESP:FREQFORMAT:%011lu
+
+# SETUP and SETDN define the command(s) to set the Uplink/Downlink Freq.
+RESP:SETUP:FB%freq%;
+RESP:SETDN:FA%freq%;
+
+# To change bands on the control channel
+BANDUP:BU;
+BANDDN:BD;
+
+# All EXIT commands run when closing port... someday...
+EXIT:SA0000000;
+EXIT:RG100;
