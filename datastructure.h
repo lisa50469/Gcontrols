@@ -44,9 +44,6 @@ public:
     bool GetResponseCode(QString resp, QString *code);
     RespStruct *GetNextRespCode(RespStruct *p, QString *resp, QString *code);
     void InserVariablesInString(QString *s);
-
-    QString GetComTermChars();
-    QString GetNetTermChars();
 };
 
 #endif // DATASTRUCTURE_H

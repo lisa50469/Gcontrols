@@ -69,12 +69,6 @@ void DataStructure::AddStructResps(QString str1,QString str2)
 }
 
 //-----------------------------------------------------------------------
-QString DataStructure::GetComTermChars()
-{
-    return ComTermChars;
-}
-
-//-----------------------------------------------------------------------
 void DataStructure::PrintResps()
 {
     RespStruct *ptr = Resp;  // Start at the beginning.
