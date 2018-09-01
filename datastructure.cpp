@@ -86,22 +86,21 @@ void DataStructure::PrintResps()
 }
 
 //-----------------------------------------------------------------------
-void DataStructure::GetResponseCode(QString resp, QString *code)
+bool DataStructure::GetResponseCode(QString resp, QString *code)
 {
     QString s;
     RespStruct *ptr = Resp;  // Start at the beginning.
+//qDebug() << "getresponse has this:" << resp;
     while ((ptr != NULL) && (resp != ptr->instr))
-    {
-        if (!resp.indexOf(ptr->instr))
-            {
-
-            }
-        else
-        {
+        if (resp.indexOf(ptr->instr))
             ptr = ptr->next;
+
+    if (resp == ptr->instr)
+        {
+        *code = ptr->outstr;
+        return true;
         }
-    }
-    *code = ptr->outstr;
+    return false;
 }
 
 //-----------------------------------------------------------------------

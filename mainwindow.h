@@ -42,7 +42,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.13";
+    QString version = "1.14";
 
 private slots:
     void on_pushButton_scan_com_ports_clicked();
@@ -59,7 +59,7 @@ private slots:
 
     void on_pushButton_read_radio_config_clicked();
     void on_pushButton_read_rotor_config_clicked();
-    void Initialization(DataStructure * , QSerialPort *, QString *, QPlainTextEdit *);
+    void SendDataToCom(DataStructure * , QSerialPort *, QString *, QPlainTextEdit *);
     void InserVariablesInString(QString *s);
     long RoundTo5k(long num);
     QString FreqBand(QString freq);

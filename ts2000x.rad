@@ -2,7 +2,7 @@
 TERM:13
 
 # Set the baud rate, other settings are fixed at N81
-BAUD:9600
+BAUD:19200
 
 # All lines that start with INIT will be sent to the com port when the
 # port is opened.  In the order they appear here.
@@ -15,7 +15,7 @@ INIT:DC11;
 INIT:FR0;
 INIT:MD4;
 INIT:RG255;
-INIT:RG;
+#INIT:RG;
 
 # Enter Sat mode
 INIT:SA1010000;
@@ -32,5 +32,9 @@ BANDUP:BU;
 BANDDN:BD;
 
 # All EXIT commands run when closing port... someday...
-EXIT:SA0000000;
+EXIT:SA0010000;
 EXIT:RG100;
+EXIT:DC00;
+EXIT:FR2;
+EXIT:DC11;
+EXIT:FR2;

@@ -99,7 +99,12 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
 
     if (RadioSerialPort->isOpen())
         {
+        //RadioInitialization();  // Send the data from the config file that was read.
+        QString s = "EXIT";
+        SendDataToCom(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
         qDebug() << "Closing Radio Com port...";
+        RadioSerialPort->flush();
+        RadioSerialPort->waitForBytesWritten(500);
         RadioSerialPort->close();
         ui->pushButton_open_radio_port->setText("Port Closed");
         ui->lineEdit_radio_port->setEnabled(0);
@@ -110,10 +115,10 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
         RadioSerialPort->setPortName(ui->comboBox_radio_port->currentText());
         if (RadioSerialPort->open(QIODevice::ReadWrite))
             {
-            RadioCode->GetResponseCode("BAUD",&s);
-//qDebug() << "Baud rate is:" << s;
-//RadioSerialPort->setBaudRate(QSerialPort::Baud9600);
-            RadioSerialPort->setBaudRate(s.toInt());
+            if (RadioCode->GetResponseCode("BAUD",&s))
+                RadioSerialPort->setBaudRate(s.toInt());
+            else
+                RadioSerialPort->setBaudRate(QSerialPort::Baud9600);
             RadioSerialPort->setDataBits(QSerialPort::Data8);
             RadioSerialPort->setFlowControl(QSerialPort::NoFlowControl);
             RadioSerialPort->setStopBits(QSerialPort::OneStop);
@@ -122,7 +127,7 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
 
             //RadioInitialization();  // Send the data from the config file that was read.
             QString s = "INIT";
-            Initialization(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
+            SendDataToCom(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
             }
         else
             {
@@ -159,7 +164,7 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
 
                 //RotorInitialization();  // Send the data from the config file that was read.
                 QString s = "INIT";
-                Initialization(RotorCode, RotorSerialPort, &s, ui->plainTextEditRotor);
+                SendDataToCom(RotorCode, RotorSerialPort, &s, ui->plainTextEditRotor);
                 }
             else
                 {
@@ -340,19 +345,15 @@ void MainWindow::RadioSocketReadyRead()
         NewUPFreq = str;
         if (NewUPFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
             {
-//qDebug() << "Got new freq: " << FreqBand(NewUPFreq);
-//qDebug() << "Got old freq: " << FreqBand(LastUplinkFreq);
 if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
 {
-//    qDebug() << "GOTTA CHANGE BANDS!";
-    RadioCode->GetResponseCode("BANDUP",&NewUPFreq);
-
-    //NewUPFreq = "BU;";
-    RadioSerialPort->write(NewUPFreq.toUtf8());
-    MainWindow::QStringReveal(NewUPFreq);
-    if(ui->checkBox_logging->checkState())
-        ui->plainTextEditRadio->appendPlainText(">: "+NewUPFreq);
-
+    if (RadioCode->GetResponseCode("BANDUP",&NewUPFreq))
+        {
+        RadioSerialPort->write(NewUPFreq.toUtf8());
+        MainWindow::QStringReveal(NewUPFreq);
+        if(ui->checkBox_logging->checkState())
+            ui->plainTextEditRadio->appendPlainText(">: "+NewUPFreq);
+        }
 }
             LastUplinkFreq = str;
             RadioCode->GetResponseCode("SETUP",&s);
@@ -502,6 +503,12 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
                 s2 = line.split(":").at(1);
                 RadioCode->AddStructResps(s1,s2);
             }
+            if (cmd == "EXIT")
+            {
+                s1 = line.split(":").at(0);
+                s2 = line.split(":").at(1);
+                RadioCode->AddStructResps(s1,s2);
+            }
             if (cmd == "BANDDN")
             {
                 s1 = line.split(":").at(0);
@@ -517,7 +524,9 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
             if (cmd == "BAUD")
             {
                 s1 = line.split(":").at(0);
+//qDebug() << "Baud found in config" <<      s1;
                 s2 = line.split(":").at(1);
+//qDebug() << "Baud found in config" <<      s2;
                 RadioCode->AddStructResps(s1,s2);
             }
         };
@@ -525,18 +534,20 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
 }
 
 //-----------------------------------------------------------------------
-void MainWindow::Initialization(DataStructure *cfg, QSerialPort *prt, QString *resp, QPlainTextEdit *where )
+void MainWindow::SendDataToCom(DataStructure *cfg, QSerialPort *prt, QString *resp, QPlainTextEdit *where )
 {
     RespStruct *pnext;
     QString code;
-
     pnext = cfg->Resp;  // Initially point to the beginning of the list.
     do
     {
+qDebug() << "Looing for resp:" << *resp;
         pnext = cfg->GetNextRespCode(pnext,resp, &code);
         if (code != "NULL")
         {
-//qDebug() << "New test function got one:"<< code;
+qDebug() << "New test function got one:"<< code;
+            InserVariablesInString(&code);
+qDebug() << "New2 test function got one:"<< code;
             code += cfg->ComTermChars;
             prt->write(code.toUtf8());
             MainWindow::QStringReveal(code);

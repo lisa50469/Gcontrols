@@ -41,7 +41,7 @@ public:
     void AddStructResps (QString str1,QString str2);
     void PrintResps();
     void Clear();
-    void GetResponseCode(QString resp, QString *code);
+    bool GetResponseCode(QString resp, QString *code);
     RespStruct *GetNextRespCode(RespStruct *p, QString *resp, QString *code);
     void InserVariablesInString(QString *s);
 
