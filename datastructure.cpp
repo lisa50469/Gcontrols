@@ -95,7 +95,7 @@ bool DataStructure::GetResponseCode(QString resp, QString *code)
         if (resp.indexOf(ptr->instr))
             ptr = ptr->next;
 
-    if (resp == ptr->instr)
+    if (ptr != NULL && resp == ptr->instr)
         {
         *code = ptr->outstr;
         return true;

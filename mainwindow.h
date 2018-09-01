@@ -42,7 +42,7 @@ public:
     ~MainWindow();
     QString GetComData(QSerialPort *whatcom, QPlainTextEdit *where);
     void QStringReveal(QString &str);
-    QString version = "1.14";
+    QString version = "1.15";
 
 private slots:
     void on_pushButton_scan_com_ports_clicked();
@@ -87,6 +87,10 @@ private:
     bool DoRounding;
     long UplinkFreq;
     long DownlinkFreq;
+    QString UplinkFreqS;
+    QString DownlinkFreqS;
+
+
     QString LastUplinkFreq;
     QString LastDownlinkFreq;
     float Azumith;

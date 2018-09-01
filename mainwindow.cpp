@@ -102,7 +102,7 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
         //RadioInitialization();  // Send the data from the config file that was read.
         QString s = "EXIT";
         SendDataToCom(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
-        qDebug() << "Closing Radio Com port...";
+       // qDebug() << "Closing Radio Com port...";
         RadioSerialPort->flush();
         RadioSerialPort->waitForBytesWritten(500);
         RadioSerialPort->close();
@@ -267,6 +267,8 @@ void MainWindow::RotorNewNetConnection()
 //-----------------------------------------------------------------------
 long MainWindow::RoundTo5k(long num)
 {
+    if (!MainWindow::DoRounding) return num;
+
     int remainder = num % 10000;
     int bigpart = num / 10000;
 
@@ -335,16 +337,15 @@ void MainWindow::RadioSocketReadyRead()
         break;
     case 'I':
         sscanf(CommandString,"%c %ld",&c,&UplinkFreq);
+        UplinkFreq = MainWindow::RoundTo5k(UplinkFreq);
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
-
-        if (MainWindow::DoRounding)
-            sprintf(str,freqformat,MainWindow::RoundTo5k(UplinkFreq));
-        else
-            sprintf(str,freqformat,UplinkFreq);
+        sprintf(str,freqformat,UplinkFreq);
+        UplinkFreqS = str;
         NewUPFreq = str;
         if (NewUPFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
             {
+
 if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
 {
     if (RadioCode->GetResponseCode("BANDUP",&NewUPFreq))
@@ -357,7 +358,9 @@ if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
 }
             LastUplinkFreq = str;
             RadioCode->GetResponseCode("SETUP",&s);
-            s.replace( "%freq%", str);
+//   qDebug() << "uplink."<< s;
+            InserVariablesInString(&s);
+//            //s.replace( "%freq%", str);
             s += RadioCode->ComTermChars;
             RadioSerialPort->write(s.toUtf8());
             MainWindow::QStringReveal(s);
@@ -369,17 +372,19 @@ if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
         sscanf(CommandString,"%c %ld",&c,&DownlinkFreq);
         s = "RPRT 0\r";
         RadioSocket->write(s.toUtf8());
+        DownlinkFreq = MainWindow::RoundTo5k(DownlinkFreq);
 
-        if (MainWindow::DoRounding)
-            sprintf(str,freqformat,MainWindow::RoundTo5k(DownlinkFreq));
-        else
-            sprintf(str,freqformat,DownlinkFreq);
+        sprintf(str,freqformat,DownlinkFreq);
+        DownlinkFreqS = str;
         NewDNFreq = str;
+//qDebug() << "downlink2"<< str;
         if (NewDNFreq != LastDownlinkFreq && RadioSerialPort->isWritable()) // new freq
             {
             LastDownlinkFreq = str;
             RadioCode->GetResponseCode("SETDN",&s);
-            s.replace( "%freq%", str);
+            InserVariablesInString(&s);
+//qDebug() << "downlink3"<< s;
+            //s.replace( "%freq%", str);
             s += RadioCode->ComTermChars;
             RadioSerialPort->write(s.toUtf8());
             MainWindow::QStringReveal(s);
@@ -524,9 +529,7 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
             if (cmd == "BAUD")
             {
                 s1 = line.split(":").at(0);
-//qDebug() << "Baud found in config" <<      s1;
                 s2 = line.split(":").at(1);
-//qDebug() << "Baud found in config" <<      s2;
                 RadioCode->AddStructResps(s1,s2);
             }
         };
@@ -541,13 +544,13 @@ void MainWindow::SendDataToCom(DataStructure *cfg, QSerialPort *prt, QString *re
     pnext = cfg->Resp;  // Initially point to the beginning of the list.
     do
     {
-qDebug() << "Looing for resp:" << *resp;
+//qDebug() << "Looing for resp:" << *resp;
         pnext = cfg->GetNextRespCode(pnext,resp, &code);
         if (code != "NULL")
         {
-qDebug() << "New test function got one:"<< code;
+//qDebug() << "New test function got one:"<< code;
             InserVariablesInString(&code);
-qDebug() << "New2 test function got one:"<< code;
+//qDebug() << "New2 test function got one:"<< code;
             code += cfg->ComTermChars;
             prt->write(code.toUtf8());
             MainWindow::QStringReveal(code);
@@ -596,14 +599,15 @@ void MainWindow::on_pushButton_read_rotor_config_clicked()
 //-----------------------------------------------------------------------
 void MainWindow::InserVariablesInString(QString *s)
 {
-
     if (s->contains("%uplink%")>0)
-       s->replace( "%uplink%", QString::number(UplinkFreq) );
+        s->replace( "%uplink%", UplinkFreqS);
+   // s->replace( "%uplink%", QString::number(UplinkFreq));
     if (s->contains("%downlink%")>0)
-        s->replace( "%downlink%", QString::number(DownlinkFreq) );
+        s->replace( "%downlink%", DownlinkFreqS);
+   // s->replace( "%downlink%", QString::number(DownlinkFreq));
 
     if (s->contains("%az%")>0)
-        s->replace( "%az%", QString::number(Azumith) );
+        s->replace( "%az%", QString::number(Azumith));
     if (s->contains("%el%")>0)
-        s->replace( "%el%", QString::number(Elevation) );
+        s->replace( "%el%", QString::number(Elevation));
 }
