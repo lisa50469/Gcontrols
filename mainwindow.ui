@@ -53,6 +53,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Select Com port for the radio</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -68,6 +71,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Connect the com port</string>
+       </property>
        <property name="text">
         <string>Connect</string>
        </property>
@@ -80,6 +86,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Scan/Re-Scan Com ports</string>
        </property>
        <property name="text">
         <string>Scan Com Ports</string>
@@ -96,6 +105,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Connect the com port</string>
        </property>
        <property name="text">
         <string>Connect</string>
@@ -118,6 +130,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Select Com port for the Rotor</string>
          </property>
         </widget>
        </item>
@@ -288,6 +303,9 @@
        <height>25</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>Select Radio config file from this list</string>
+     </property>
     </widget>
     <widget class="QLabel" name="label_5">
      <property name="geometry">
@@ -311,6 +329,9 @@
        <height>25</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>Press to read the config file shown to the left</string>
+     </property>
      <property name="text">
       <string>Read Config</string>
      </property>
@@ -323,6 +344,9 @@
        <width>261</width>
        <height>25</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>Select Rotor config file from this list</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_8">
@@ -347,6 +371,9 @@
        <height>25</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>Press to read the config file shown to the left</string>
+     </property>
      <property name="text">
       <string>Read Config</string>
      </property>
@@ -360,6 +387,9 @@
       <width>151</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>Enable/Disable com port logging</string>
     </property>
     <property name="text">
      <string>Enable Logging</string>
