@@ -24,8 +24,8 @@ INIT:SA1010000;
 RESP:FREQFORMAT:%011lu
 
 # SETUP and SETDN define the command(s) to set the Uplink/Downlink Freq.
-RESP:SETUP:FB%freq%;
-RESP:SETDN:FA%freq%;
+RESP:SETUP:FB%uplink%;
+RESP:SETDN:FA%downlink%;
 
 # To change bands on the control channel
 BANDUP:BU;

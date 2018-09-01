@@ -35,14 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QDirIterator Radioit(".", QStringList() << "*.rad", QDir::Files, QDirIterator::Subdirectories);
     while (Radioit.hasNext()) {
-        //qDebug() << Radioit.next();
         Radioit.next();
         ui->comboBox_Radio_File_Config->addItem(Radioit.fileName());
     }
 
     QDirIterator Rotorit(".", QStringList() << "*.rot", QDir::Files, QDirIterator::Subdirectories);
     while (Rotorit.hasNext()) {
-        //qDebug() << Rotorit.next();
         Rotorit.next();
         ui->comboBox_Rotor_File_Config->addItem(Rotorit.fileName());
     }
@@ -58,8 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
     Elevation = 22;
     UplinkFreq = 145800000;
     DownlinkFreq = 446900000;
-    //LastUplinkFreq = 0;
-    //LastDownlinkFreq = 0;
     MainWindow::DoRounding = false;
 
     // Now enable the NET server for the Radio
@@ -99,10 +95,8 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
 
     if (RadioSerialPort->isOpen())
         {
-        //RadioInitialization();  // Send the data from the config file that was read.
-        QString s = "EXIT";
+        QString s = "EXIT"; // Send all the exit codes
         SendDataToCom(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
-       // qDebug() << "Closing Radio Com port...";
         RadioSerialPort->flush();
         RadioSerialPort->waitForBytesWritten(500);
         RadioSerialPort->close();
@@ -124,9 +118,7 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
             RadioSerialPort->setStopBits(QSerialPort::OneStop);
             ui->pushButton_open_radio_port->setText("Port Open");
             ui->lineEdit_radio_port->setEnabled(1);
-
-            //RadioInitialization();  // Send the data from the config file that was read.
-            QString s = "INIT";
+            QString s = "INIT"; // Send the data from the config file that was read.
             SendDataToCom(RadioCode, RadioSerialPort, &s, ui->plainTextEditRadio);
             }
         else
@@ -161,9 +153,7 @@ void MainWindow::on_pushButton_open_rotor_port_clicked()
                 RotorSerialPort->setStopBits(QSerialPort::OneStop);
                 ui->pushButton_open_rotor_port->setText("Port Open");
                 ui->lineEdit_rotor_port->setEnabled(1);
-
-                //RotorInitialization();  // Send the data from the config file that was read.
-                QString s = "INIT";
+                QString s = "INIT"; // Send the data from the config file that was read.
                 SendDataToCom(RotorCode, RotorSerialPort, &s, ui->plainTextEditRotor);
                 }
             else
@@ -195,11 +185,13 @@ void MainWindow::on_lineEdit_radio_port_returnPressed()
 //-----------------------------------------------------------------------
 void MainWindow::on_lineEdit_rotor_port_returnPressed()
 {
-    QByteArray data = ui->lineEdit_rotor_port->text().toLocal8Bit();
-    QString str = data;
-    data += '\n';   // Need to define termination in the config file too
-    RotorSerialPort->write(data);
-    str += '\n';
+    //QByteArray data = ui->lineEdit_rotor_port->text().toLocal8Bit();
+    //QString str = data;
+    QString str =  ui->lineEdit_rotor_port->text();
+   // data += '\n';   // Need to define termination in the config file too
+    str += RotorCode->ComTermChars;
+    RotorSerialPort->write(str.toUtf8());
+    //str += '\n';
     MainWindow::QStringReveal(str);
     if(ui->checkBox_logging->checkState())
         ui->plainTextEditRotor->appendPlainText(">: "+str);
@@ -267,7 +259,7 @@ void MainWindow::RotorNewNetConnection()
 //-----------------------------------------------------------------------
 long MainWindow::RoundTo5k(long num)
 {
-    if (!MainWindow::DoRounding) return num;
+    if (!MainWindow::DoRounding) return num;  // No rounding...
 
     int remainder = num % 10000;
     int bigpart = num / 10000;
@@ -345,22 +337,19 @@ void MainWindow::RadioSocketReadyRead()
         NewUPFreq = str;
         if (NewUPFreq != LastUplinkFreq && RadioSerialPort->isWritable()) // new freq
             {
-
-if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
-{
-    if (RadioCode->GetResponseCode("BANDUP",&NewUPFreq))
-        {
-        RadioSerialPort->write(NewUPFreq.toUtf8());
-        MainWindow::QStringReveal(NewUPFreq);
-        if(ui->checkBox_logging->checkState())
-            ui->plainTextEditRadio->appendPlainText(">: "+NewUPFreq);
-        }
-}
+            if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
+                {
+                if (RadioCode->GetResponseCode("BANDUP",&NewUPFreq))
+                    { // Fake the radio out so it can change bands
+                    RadioSerialPort->write(NewUPFreq.toUtf8());
+                    MainWindow::QStringReveal(NewUPFreq);
+                    if(ui->checkBox_logging->checkState())
+                        ui->plainTextEditRadio->appendPlainText(">: "+NewUPFreq);
+                    }
+                }
             LastUplinkFreq = str;
             RadioCode->GetResponseCode("SETUP",&s);
-//   qDebug() << "uplink."<< s;
             InserVariablesInString(&s);
-//            //s.replace( "%freq%", str);
             s += RadioCode->ComTermChars;
             RadioSerialPort->write(s.toUtf8());
             MainWindow::QStringReveal(s);
@@ -377,14 +366,11 @@ if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
         sprintf(str,freqformat,DownlinkFreq);
         DownlinkFreqS = str;
         NewDNFreq = str;
-//qDebug() << "downlink2"<< str;
         if (NewDNFreq != LastDownlinkFreq && RadioSerialPort->isWritable()) // new freq
             {
             LastDownlinkFreq = str;
             RadioCode->GetResponseCode("SETDN",&s);
             InserVariablesInString(&s);
-//qDebug() << "downlink3"<< s;
-            //s.replace( "%freq%", str);
             s += RadioCode->ComTermChars;
             RadioSerialPort->write(s.toUtf8());
             MainWindow::QStringReveal(s);
@@ -412,8 +398,6 @@ if (FreqBand(NewUPFreq) != FreqBand(LastUplinkFreq))
         break;
     } // Done with the case statement.
 
-    // OK, outside the case statement change freq's if needed.
-
 }
 
 //-----------------------------------------------------------------------
@@ -434,8 +418,8 @@ void MainWindow::RotorSocketReadyRead()
         format[i] = s.toUtf8()[i];
     format[i] = '\0'; // Terminate the string
 
-i = data[0];
-s = data;
+    i = data[0];
+    s = data;
     switch (i) {
     case 'p':
         sprintf(az,"%.2f",Azumith);
@@ -483,7 +467,6 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
      while  (!in.atEnd())
         {
             line = in.readLine();
-//qDebug() << "config ---> " << line;
             cmd = line.split(":").at(0);
             if (cmd == "TERM")
                 {
@@ -494,7 +477,6 @@ void MainWindow::on_pushButton_read_radio_config_clicked()
             if (cmd == "ROUND")
                 {
                 DoRounding = true;
-                //qDebug() << "Rounding is turned on.";
                 }
             if (cmd == "RESP")
             {
@@ -590,6 +572,12 @@ void MainWindow::on_pushButton_read_rotor_config_clicked()
             {
                 s1 = line.split(":").at(1);
                 s2 = line.split(":").at(2);
+                RotorCode->AddStructResps(s1,s2);
+            }
+            if (cmd == "BAUD")
+            {
+                s1 = line.split(":").at(0);
+                s2 = line.split(":").at(1);
                 RotorCode->AddStructResps(s1,s2);
             }
         };
