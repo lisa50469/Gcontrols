@@ -1,3 +1,4 @@
+Written for QTCreator under Linux.  
 
 I use this program to run my v71a and custom built rotor with Gpredict.
 Built with QT Creator on 18.04 Ubuntu Linux.
