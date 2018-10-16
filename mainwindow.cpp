@@ -116,6 +116,9 @@ void MainWindow::on_pushButton_open_radio_port_clicked()
             RadioSerialPort->setDataBits(QSerialPort::Data8);
             RadioSerialPort->setFlowControl(QSerialPort::NoFlowControl);
             RadioSerialPort->setStopBits(QSerialPort::OneStop);
+
+            RadioSerialPort->setDataTerminalReady(false);
+            //RadioSerialPort->setDataTerminalReady(true);
             ui->pushButton_open_radio_port->setText("Port Open");
             ui->lineEdit_radio_port->setEnabled(1);
             QString s = "INIT"; // Send the data from the config file that was read.

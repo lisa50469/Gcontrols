@@ -2,23 +2,33 @@
 TERM:13
 
 # Set the baud rate, other settings are fixed at N81
-BAUD:19200
+#BAUD:19200
+BAUD:9600
 
 # All lines that start with INIT will be sent to the com port when the
 # port is opened.  In the order they appear here.
 # Turn the sub on.
 INIT:SB1;
+
+# Enter Sat mode
+#INIT:SA1010000;
+
+# Setup Main VFO
 INIT:DC00;
 INIT:FR0;
 INIT:MD4;
+#INIT:FW0001;
+
 INIT:DC11;
-INIT:FR0;
+INIT:FR1;
 INIT:MD4;
-INIT:RG255;
-#INIT:RG;
+#INIT:FW0000;
 
 # Enter Sat mode
 INIT:SA1010000;
+
+INIT:RG255;
+#INIT:RG;
 
 # Specify the frequency format
 RESP:FREQFORMAT:%011lu
@@ -26,6 +36,8 @@ RESP:FREQFORMAT:%011lu
 # SETUP and SETDN define the command(s) to set the Uplink/Downlink Freq.
 RESP:SETUP:FB%uplink%;
 RESP:SETDN:FA%downlink%;
+RESP:SETDN:FW0000;
+
 
 # To change bands on the control channel
 BANDUP:BU;
